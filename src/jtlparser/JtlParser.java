@@ -20,8 +20,8 @@ public class JtlParser {
      */
     public static void main(String[] args) throws Exception{
         // TODO code application logic here
-        JMeterParser parser = new JMeterParser();
-        parser.parse(new File("/Users/Ramkumar/Desktop/demo.xml"));
+        JMeterParser parser = new JMeterParser("table5");
+        parser.parse(new File("/home/nsadmin/Downloads/1user_test_O365_12.jtl"));
     }
     
 }

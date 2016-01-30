@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -30,7 +32,14 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Kohsuke Kawaguchi
  */
 public class JMeterParser  {
-  
+  String scenarioName;
+  InfluxWritter influx;
+  List<HttpSample> httpSamples;
+  JMeterParser(String scenarioName){
+      this.scenarioName = scenarioName;
+      this.influx = new InfluxWritter("127.0.0.1", scenarioName);
+      httpSamples = new LinkedList<HttpSample>();
+  }
 
   void parse(File reportFile) throws Exception
   {
@@ -42,6 +51,7 @@ public class JMeterParser  {
     } else {
        parseCsv(reportFile);
     }
+    influx.insertRecord(httpSamples);
   }
   
   /**
@@ -161,11 +171,20 @@ public class JMeterParser  {
         if ("httpSample".equalsIgnoreCase(qName) || "sample".equalsIgnoreCase(qName)) {
           if (counter == 1) {
             try {
-              System.out.println(currentSample.getUri());
+                //influx.insertRecord(currentSample);
+                //System.out.println("URI: "+currentSample.getUri());
+                //System.out.println("Code: "+currentSample.getHttpCode());
+                //System.out.println("Duration: "+currentSample.getDuration());
+                //System.out.println("Size: "+currentSample.getSizeInKb());
+                httpSamples.add(currentSample);
             } catch (Exception e) {
               e.printStackTrace();
             }
           }
+          //System.out.println(currentSample.getDuration());
+          //influx.insertRecord(currentSample);
+          Progress.total_record_parsed++;
+          System.out.println("Processing Record "+Progress.total_record_parsed);
           counter--;
         }
       }
